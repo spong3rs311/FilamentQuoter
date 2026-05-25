@@ -31,10 +31,11 @@ describe('calculateQuote', () => {
   it('applies markup to subtotal', () => {
     expect(calculateQuote(10, pla, pricing).computed_total).toBeCloseTo(23.12, 1)
   })
-  it('enforces minimum order', () => {
-    const r = calculateQuote(0.01, pla, pricing)
-    expect(r.final_total).toBe(19.00)
+  it('enforces minimum order when computed total is below threshold', () => {
+    const minPricing = { machine_hourly_rate: 0.50, labor_fee: 0, markup_percent: 0, waste_factor: 0.15, minimum_order_total: 25.00 }
+    const r = calculateQuote(0.01, pla, minPricing)
     expect(r.minimum_applied).toBe(true)
+    expect(r.final_total).toBe(25.00)
   })
   it('does not enforce minimum when total exceeds it', () => {
     const r = calculateQuote(10, pla, pricing)
