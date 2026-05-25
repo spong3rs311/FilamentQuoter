@@ -1,6 +1,3 @@
-import { parseFile } from './parser.js'
-import { calculateQuote } from './calculator.js'
-
 const CSS = `
 #fq-wizard{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   max-width:480px;margin:0 auto;border:1px solid #e0e0e0;border-radius:12px;
@@ -80,6 +77,7 @@ function makeHeader(step) {
 }
 
 function goTo(step, el, state, config) {
+  if (step < 1 || step > 4) return
   state.step = step
   render(el, state, config)
 }
