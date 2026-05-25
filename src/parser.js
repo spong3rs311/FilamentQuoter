@@ -59,5 +59,24 @@ function signedVolumeMm3(triangles) {
 }
 
 async function parse3mf(file) {
-  throw new Error('3MF parsing not yet implemented')
+  const buffer = await file.arrayBuffer()
+  const zip = await JSZip.loadAsync(buffer)
+  const modelFile = zip.file('3D/3dmodel.model')
+  if (!modelFile) throw new Error('Invalid 3MF: missing 3D/3dmodel.model')
+  const xml = await modelFile.async('string')
+  const doc = new DOMParser().parseFromString(xml, 'application/xml')
+
+  const vertices = Array.from(doc.querySelectorAll('vertices vertex')).map(el => [
+    parseFloat(el.getAttribute('x')),
+    parseFloat(el.getAttribute('y')),
+    parseFloat(el.getAttribute('z'))
+  ])
+
+  const triangles = Array.from(doc.querySelectorAll('triangles triangle')).map(el => [
+    vertices[parseInt(el.getAttribute('v1'))],
+    vertices[parseInt(el.getAttribute('v2'))],
+    vertices[parseInt(el.getAttribute('v3'))]
+  ])
+
+  return Math.abs(signedVolumeMm3(triangles)) / 1000
 }
