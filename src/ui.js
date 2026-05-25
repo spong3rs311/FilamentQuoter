@@ -238,9 +238,47 @@ function renderStep3(el, body, footer, state, config) {
 }
 
 function prefillSquarespaceForm(state, config) {
-  // implemented in Task 11
+  const q = state.quote
+  const breakdown = [
+    `Filament: ${state.filament.name}`,
+    `Volume: ${state.volumeCm3.toFixed(3)} cm³`,
+    `Weight: ${q.weight_g.toFixed(1)}g`,
+    `Material: $${q.material_cost.toFixed(2)}`,
+    `Machine time: ${q.print_hours.toFixed(2)}h ($${q.machine_cost.toFixed(2)})`,
+    `Labor: $${q.labor_fee.toFixed(2)}`,
+    `Markup (${config.pricing.markup_percent}%): $${q.markup_amount.toFixed(2)}`,
+    `Total: $${q.final_total.toFixed(2)}`,
+  ].join('\n')
+
+  const set = (name, val) => {
+    const el = document.querySelector(`[name="${name}"]`)
+    if (el) el.value = val
+  }
+  set('quote_filament', state.filament.name)
+  set('quote_volume_cm3', state.volumeCm3.toFixed(3))
+  set('quote_breakdown', breakdown)
+  set('quote_total', q.final_total.toFixed(2))
+
+  const formBlock = document.getElementById('quote-form-block')
+  if (formBlock) {
+    formBlock.style.display = 'block'
+    setTimeout(() => formBlock.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
+  }
 }
 
-function renderStep4(body, state, config) {
-  body.appendChild(Object.assign(document.createElement('h2'), { className: 'fq-title', textContent: 'Submit Your Job' }))
+function renderStep4(body, state) {
+  const banner = document.createElement('div')
+  banner.className = 'fq-banner'
+  banner.textContent = 'Your quote has been saved. Complete the form below to submit your job.'
+
+  const summary = document.createElement('div')
+  summary.style.cssText = 'font-size:13px;color:#666;margin-top:12px;'
+  summary.textContent = `${state.filament.name} — $${state.quote.final_total.toFixed(2)}`
+
+  const reupload = document.createElement('div')
+  reupload.className = 'fq-note'
+  reupload.style.marginTop = '12px'
+  reupload.textContent = 'Please re-upload your file in the form below so we have it on record.'
+
+  body.appendChild(banner); body.appendChild(summary); body.appendChild(reupload)
 }
