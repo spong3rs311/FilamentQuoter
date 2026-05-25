@@ -178,6 +178,7 @@ function renderStep2(el, body, footer, state, config) {
 
 function renderStep3(el, body, footer, state, config) {
   const q = state.quote
+  if (!q) { body.textContent = 'No quote data. Please start over.'; return }
   const fmt = n => '$' + n.toFixed(2)
 
   body.appendChild(Object.assign(document.createElement('h2'), { className: 'fq-title', textContent: 'Your Quote' }))
