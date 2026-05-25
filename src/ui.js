@@ -177,7 +177,67 @@ function renderStep2(el, body, footer, state, config) {
 }
 
 function renderStep3(el, body, footer, state, config) {
+  const q = state.quote
+  const fmt = n => '$' + n.toFixed(2)
+
   body.appendChild(Object.assign(document.createElement('h2'), { className: 'fq-title', textContent: 'Your Quote' }))
+
+  const rows = [
+    [`Material (${q.weight_g.toFixed(1)}g × $${state.filament.cost_per_gram}/g)`, fmt(q.material_cost)],
+    [`Machine time (${q.print_hours.toFixed(2)}h × $${config.pricing.machine_hourly_rate}/hr)`, fmt(q.machine_cost)],
+    [`Labor / setup`, fmt(q.labor_fee)],
+    [`Markup (${config.pricing.markup_percent}%)`, fmt(q.markup_amount)],
+  ]
+  for (const [label, val] of rows) {
+    const row = document.createElement('div')
+    row.className = 'fq-row'
+    const labelSpan = document.createElement('span')
+    labelSpan.textContent = label
+    const valSpan = document.createElement('span')
+    valSpan.textContent = val
+    row.appendChild(labelSpan); row.appendChild(valSpan)
+    body.appendChild(row)
+  }
+
+  const total = document.createElement('div')
+  total.className = 'fq-total'
+  const totalLabel = document.createElement('span')
+  totalLabel.textContent = 'Total'
+  const totalVal = document.createElement('span')
+  totalVal.textContent = fmt(q.final_total)
+  total.appendChild(totalLabel); total.appendChild(totalVal)
+  body.appendChild(total)
+
+  if (q.minimum_applied) {
+    const note = document.createElement('div')
+    note.className = 'fq-note'
+    note.textContent = `Minimum order of $${config.pricing.minimum_order_total.toFixed(2)} applied.`
+    body.appendChild(note)
+  }
+
+  const back = document.createElement('button')
+  back.className = 'fq-btn fq-btn-secondary'; back.textContent = '← Back'
+  back.addEventListener('click', () => goTo(2, el, state, config))
+
+  const decline = document.createElement('button')
+  decline.className = 'fq-btn fq-btn-secondary'; decline.textContent = 'Decline'
+  decline.addEventListener('click', () => {
+    Object.assign(state, { file: null, volumeCm3: null, filament: null, quote: null, parseError: null })
+    goTo(1, el, state, config)
+  })
+
+  const accept = document.createElement('button')
+  accept.className = 'fq-btn fq-btn-primary'; accept.textContent = 'Accept Quote'
+  accept.addEventListener('click', () => {
+    prefillSquarespaceForm(state, config)
+    goTo(4, el, state, config)
+  })
+
+  footer.appendChild(back); footer.appendChild(decline); footer.appendChild(accept)
+}
+
+function prefillSquarespaceForm(state, config) {
+  // implemented in Task 11
 }
 
 function renderStep4(body, state, config) {
