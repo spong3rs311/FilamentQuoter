@@ -41,7 +41,7 @@ export function createWizard(config) {
     s.textContent = CSS
     document.head.appendChild(s)
   }
-  const state = { step: 1, file: null, volumeCm3: null, filament: null, quote: null }
+  const state = { step: 1, file: null, volumeCm3: null, filament: null, quote: null, parseError: null }
   const el = document.createElement('div')
   el.id = 'fq-wizard'
   render(el, state, config)
@@ -89,29 +89,39 @@ function renderStep1(el, body, footer, state, config) {
 
   const drop = document.createElement('div')
   drop.className = 'fq-drop'
-  drop.innerHTML = state.file
-    ? `<strong>${state.file.name}</strong><br><small style="color:#4caf50">✓ ${state.volumeCm3.toFixed(3)} cm³</small>`
-    : `<div style="font-size:32px;margin-bottom:8px">📁</div>
-       <div>Drag & drop <strong>.STL</strong> or <strong>.3MF</strong> here</div>
+  if (state.file) {
+    const strong = document.createElement('strong')
+    strong.textContent = state.file.name
+    drop.appendChild(strong)
+    drop.appendChild(document.createElement('br'))
+    const small = document.createElement('small')
+    small.style.color = '#4caf50'
+    small.textContent = `✓ ${state.volumeCm3.toFixed(3)} cm³`
+    drop.appendChild(small)
+  } else {
+    drop.innerHTML = `<div style="font-size:32px;margin-bottom:8px">📁</div>
+       <div>Drag &amp; drop <strong>.STL</strong> or <strong>.3MF</strong> here</div>
        <div style="color:#aaa;font-size:13px;margin-top:4px">or click to browse</div>`
+  }
 
   const input = document.createElement('input')
   input.type = 'file'; input.accept = '.stl,.3mf'; input.style.display = 'none'
 
   const err = document.createElement('div')
   err.style.cssText = 'color:#c00;font-size:13px;margin-top:8px;'
+  if (state.parseError) err.textContent = state.parseError
 
   async function handle(file) {
-    err.textContent = ''
+    state.parseError = null
     drop.innerHTML = 'Parsing...'
     try {
       state.volumeCm3 = await parseFile(file)
       state.file = file
     } catch {
       state.file = null; state.volumeCm3 = null
+      state.parseError = 'Could not parse file. Please use a valid STL or 3MF.'
     }
     render(el, state, config)
-    if (!state.file) err.textContent = 'Could not parse file. Please use a valid STL or 3MF.'
   }
 
   drop.addEventListener('click', () => input.click())
