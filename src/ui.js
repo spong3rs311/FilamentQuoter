@@ -266,7 +266,7 @@ function prefillSquarespaceForm(state, config) {
   }
 }
 
-function renderStep4(body, state) {
+function renderStep4(body, state, config) {
   const banner = document.createElement('div')
   banner.className = 'fq-banner'
   banner.textContent = 'Your quote has been saved. Complete the form below to submit your job.'
