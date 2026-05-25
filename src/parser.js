@@ -37,7 +37,7 @@ function parseBinaryStl(buffer) {
 
 function parseAsciiStl(buffer) {
   const text = new TextDecoder().decode(buffer)
-  const re = /vertex\s+([\d.eE+-]+)\s+([\d.eE+-]+)\s+([\d.eE+-]+)/g
+  const re = /^\s*vertex\s+([\d.eE+-]+)\s+([\d.eE+-]+)\s+([\d.eE+-]+)/gm
   const triangles = []
   const verts = []
   let m
@@ -66,13 +66,14 @@ async function parse3mf(file) {
   const xml = await modelFile.async('string')
   const doc = new DOMParser().parseFromString(xml, 'application/xml')
 
-  const vertices = Array.from(doc.querySelectorAll('vertices vertex')).map(el => [
+  const NS = 'http://schemas.microsoft.com/3dmanufacturing/core/2015/02'
+  const vertices = Array.from(doc.getElementsByTagNameNS(NS, 'vertex')).map(el => [
     parseFloat(el.getAttribute('x')),
     parseFloat(el.getAttribute('y')),
     parseFloat(el.getAttribute('z'))
   ])
 
-  const triangles = Array.from(doc.querySelectorAll('triangles triangle')).map(el => [
+  const triangles = Array.from(doc.getElementsByTagNameNS(NS, 'triangle')).map(el => [
     vertices[parseInt(el.getAttribute('v1'))],
     vertices[parseInt(el.getAttribute('v2'))],
     vertices[parseInt(el.getAttribute('v3'))]
