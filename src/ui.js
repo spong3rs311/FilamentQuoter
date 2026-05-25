@@ -1,3 +1,5 @@
+import { parseFile } from './parser.js'
+
 const CSS = `
 #fq-wizard{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   max-width:480px;margin:0 auto;border:1px solid #e0e0e0;border-radius:12px;
@@ -84,6 +86,47 @@ function goTo(step, el, state, config) {
 
 function renderStep1(el, body, footer, state, config) {
   body.appendChild(Object.assign(document.createElement('h2'), { className: 'fq-title', textContent: 'Upload Your Model' }))
+
+  const drop = document.createElement('div')
+  drop.className = 'fq-drop'
+  drop.innerHTML = state.file
+    ? `<strong>${state.file.name}</strong><br><small style="color:#4caf50">✓ ${state.volumeCm3.toFixed(3)} cm³</small>`
+    : `<div style="font-size:32px;margin-bottom:8px">📁</div>
+       <div>Drag & drop <strong>.STL</strong> or <strong>.3MF</strong> here</div>
+       <div style="color:#aaa;font-size:13px;margin-top:4px">or click to browse</div>`
+
+  const input = document.createElement('input')
+  input.type = 'file'; input.accept = '.stl,.3mf'; input.style.display = 'none'
+
+  const err = document.createElement('div')
+  err.style.cssText = 'color:#c00;font-size:13px;margin-top:8px;'
+
+  async function handle(file) {
+    err.textContent = ''
+    drop.innerHTML = 'Parsing...'
+    try {
+      state.volumeCm3 = await parseFile(file)
+      state.file = file
+    } catch {
+      state.file = null; state.volumeCm3 = null
+    }
+    render(el, state, config)
+    if (!state.file) err.textContent = 'Could not parse file. Please use a valid STL or 3MF.'
+  }
+
+  drop.addEventListener('click', () => input.click())
+  input.addEventListener('change', () => input.files[0] && handle(input.files[0]))
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over') })
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'))
+  drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); e.dataTransfer.files[0] && handle(e.dataTransfer.files[0]) })
+
+  body.appendChild(drop); body.appendChild(input); body.appendChild(err)
+
+  const btn = document.createElement('button')
+  btn.className = 'fq-btn fq-btn-primary'; btn.textContent = 'Next →'
+  btn.disabled = !state.file
+  btn.addEventListener('click', () => goTo(2, el, state, config))
+  footer.appendChild(btn)
 }
 
 function renderStep2(el, body, footer, state, config) {
