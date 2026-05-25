@@ -1,0 +1,17 @@
+{
+  "pricing": {
+    "machine_hourly_rate": 2.50,
+    "labor_fee": 15.00,
+    "markup_percent": 30,
+    "waste_factor": 0.15,
+    "minimum_order_total": 19.00
+  },
+  "filaments": [
+    { "id": "pla", "name": "PLA", "density_g_per_cm3": 1.24, "cost_per_gram": 0.02, "print_speed_cm3_per_hr": 10.0, "description": "Great for general-purpose prints. Rigid, easy to post-process." },
+    { "id": "petg", "name": "PETG", "density_g_per_cm3": 1.27, "cost_per_gram": 0.03, "print_speed_cm3_per_hr": 8.5, "description": "Tough and slightly flexible. Good chemical resistance." },
+    { "id": "abs", "name": "ABS", "density_g_per_cm3": 1.05, "cost_per_gram": 0.025, "print_speed_cm3_per_hr": 7.5, "description": "Heat-resistant, machinable. Requires enclosure." },
+    { "id": "asa", "name": "ASA", "density_g_per_cm3": 1.07, "cost_per_gram": 0.04, "print_speed_cm3_per_hr": 7.0, "description": "UV and weather resistant. Ideal for outdoor parts." },
+    { "id": "nylon", "name": "Nylon", "density_g_per_cm3": 1.10, "cost_per_gram": 0.06, "print_speed_cm3_per_hr": 6.0, "description": "High strength and flexibility. Requires dry storage." },
+    { "id": "pc", "name": "PC", "density_g_per_cm3": 1.20, "cost_per_gram": 0.07, "print_speed_cm3_per_hr": 5.0, "description": "Extremely strong and heat-resistant. High-temp printer required." }
+  ]
+}
