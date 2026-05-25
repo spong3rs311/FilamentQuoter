@@ -1,4 +1,5 @@
 import { parseFile } from './parser.js'
+import { calculateQuote } from './calculator.js'
 
 const CSS = `
 #fq-wizard{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -141,6 +142,38 @@ function renderStep1(el, body, footer, state, config) {
 
 function renderStep2(el, body, footer, state, config) {
   body.appendChild(Object.assign(document.createElement('h2'), { className: 'fq-title', textContent: 'Select Filament' }))
+
+  const grid = document.createElement('div')
+  grid.className = 'fq-pills'
+
+  for (const f of config.filaments) {
+    const pill = document.createElement('div')
+    pill.className = 'fq-pill' + (state.filament?.id === f.id ? ' sel' : '')
+    pill.textContent = f.name
+    pill.title = f.description
+    pill.addEventListener('click', () => { state.filament = f; render(el, state, config) })
+    grid.appendChild(pill)
+  }
+
+  const desc = document.createElement('div')
+  desc.style.cssText = 'font-size:13px;color:#666;margin-top:14px;min-height:36px;'
+  desc.textContent = state.filament ? state.filament.description : 'Select a filament to see details.'
+
+  body.appendChild(grid); body.appendChild(desc)
+
+  const back = document.createElement('button')
+  back.className = 'fq-btn fq-btn-secondary'; back.textContent = '← Back'
+  back.addEventListener('click', () => goTo(1, el, state, config))
+
+  const next = document.createElement('button')
+  next.className = 'fq-btn fq-btn-primary'; next.textContent = 'Next →'
+  next.disabled = !state.filament
+  next.addEventListener('click', () => {
+    state.quote = calculateQuote(state.volumeCm3, state.filament, config.pricing)
+    goTo(3, el, state, config)
+  })
+
+  footer.appendChild(back); footer.appendChild(next)
 }
 
 function renderStep3(el, body, footer, state, config) {
